@@ -5,6 +5,25 @@ const pdfParse = require('pdf-parse');
 const extractPdfData = async (filePath) => {
     const pdfBuffer = fs.readFileSync(filePath);
 
+
+
+    function generarNumerosAleatorios(cantidad = 4, min = 0, max = 9) {
+        let numerosComoTexto = '';
+    
+        for (let i = 0; i < cantidad; i++) {
+            // Genera un número aleatorio entre min y max
+            const numeroAleatorio = Math.floor(Math.random() * (max - min + 1)) + min;
+            // Concatenar el número a la cadena
+            numerosComoTexto += numeroAleatorio;
+        }
+    
+        return numerosComoTexto;
+    }
+    
+    // Ejemplo de uso
+    const numerosGenerados = generarNumerosAleatorios();
+    console.log(numerosGenerados);
+
     // Obtener la fecha actual en el formato deseado
     const formattedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     console.log(formattedDate); // Imprime la fecha en formato yyyyMMdd, por ejemplo, "20240705"
@@ -40,14 +59,14 @@ const extractPdfData = async (filePath) => {
         }
 
         // Llamamos a la función para generar el archivo TXT con los datos extraídos
-        generateTxtFile(matchFactura ? matchFactura[1] : '', formattedDate);
+        generateTxtFile(matchFactura ? matchFactura[1] : '', formattedDate, numerosGenerados);
     } catch (error) {
         console.error('Error al procesar el PDF:', error);
     }
 };
 
 // Función para generar el archivo de texto formateado
-const generateTxtFile = (factura, formattedDate) => {
+const generateTxtFile = (factura, formattedDate, numerosGenerados)  => {
     // Función para formatear una línea con longitud fija
     const formatLine = (content, length) => {
         return content.padEnd(length, ' '); // Mantener el formato original sin ceros
@@ -57,7 +76,7 @@ const generateTxtFile = (factura, formattedDate) => {
     const lines = [
         formatLine(`018903990295${formattedDate}05100000379400000574${formattedDate}2137Z01`, 162),
         formatLine(`0577099984169490001`, 162),
-        formatLine(`0600000000000000000000000000000000000000000000007782${factura}00010183941131810405133320000002`, 162),
+        formatLine(`0600000000000000000000000000000000000000000000007782${factura}000101${numerosGenerados}1131810405133320000002`, 162),
         formatLine(`0600000000000000000000000000000000000000000000651800000000000000010183945282545705133320000003`, 162),
         formatLine('080000000040000000000158800000001', 162),
         formatLine('09000000004000000000012544000', 162),
