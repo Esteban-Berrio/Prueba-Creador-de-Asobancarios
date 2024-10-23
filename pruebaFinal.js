@@ -91,4 +91,4 @@ const generateTxtFile = (factura, formattedDate, numerosGenerados)  => {
 };
 
 // Ejecutar la extracción de datos del PDF y luego generar el archivo TXT
-extractPdfData('prueba.pdf');
+extractPdfData('./data/prueba.pdf');
