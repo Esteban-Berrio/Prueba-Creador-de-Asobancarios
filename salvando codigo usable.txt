@@ -1,0 +1,65 @@
+const fs = require('fs');
+const pdfParse = require('pdf-parse');
+
+// Función para extraer datos del PDF
+const extractPdfData = async (filePath) => {
+    const pdfBuffer = fs.readFileSync(filePath);
+
+    // Obtener la fecha actual en el formato deseado
+    const formattedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    console.log(formattedDate); // Imprime la fecha en formato yyyyMMdd, por ejemplo, "20240705"
+
+    try {
+        const data = await pdfParse(pdfBuffer);
+
+        // Aquí 'data.text' contiene todo el texto del PDF
+        console.log('Texto extraído del PDF:', data.text);
+
+        // Expresión regular para capturar los números entre (3900) y (96)
+        const regex = /\(3900\)(\d+)\(96\)/;
+
+        // Ejecutar la expresión regular
+        const match = data.text.match(regex);
+
+        if (match) {
+            const factura = match[1]; // Valor capturado entre (3900) y (96)
+
+            console.log('Valor entre (3900) y (96):', factura);
+
+            // Llamamos a la función para generar el archivo TXT con los datos extraídos
+            generateTxtFile(factura, formattedDate);
+        } else {
+            console.log('No se encontró el patrón en el texto.');
+        }
+    } catch (error) {
+        console.error('Error al procesar el PDF:', error);
+    }
+};
+
+// Función para generar el archivo de texto formateado
+const generateTxtFile = (factura, formattedDate) => {
+    // Función para formatear una línea con longitud fija
+    const formatLine = (content, length) => {
+        return content.padEnd(length, ' ');
+    };
+
+    // Definir las líneas con sus valores y sus longitudes respectivas
+    const lines = [
+        formatLine(`018903990295${formattedDate}05100000379400000574${formattedDate}2137Z01`, 162),
+        formatLine(`0577099984169490001`, 162),
+        formatLine(`06000000000000000000000000000000000000000000007782${factura}00010183941131810405133320000002`, 162),
+        formatLine(`0600000000000000000000000000000000000000000000651800000000000000010183945282545705133320000003 `, 162),
+        formatLine('080000000040000000000158800000001', 162),
+        formatLine('09000000004000000000012544000', 162),
+    ];
+
+    // Unir todas las líneas con un salto de línea y escribirlas en un archivo
+    const fileContent = lines.join('\n');
+
+    fs.writeFileSync('output.txt', fileContent);
+
+    console.log('Archivo TXT generado con el formato especificado.');
+};
+
+// Ejecutar la extracción de datos del PDF y luego generar el archivo TXT
+extractPdfData('21102024_001.pdf');
