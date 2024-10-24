@@ -1,6 +1,8 @@
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
+//import { procesarFila3 } from './agregarCeros.js';
 
+const { procesarFila3 } = require('./agregarCeros.js');
 // Función para extraer datos del PDF
 const extractPdfData = async (filePath) => {
     const pdfBuffer = fs.readFileSync(filePath);
@@ -83,70 +85,33 @@ const generateTxtFile = (factura, formattedDate, numerosGenerados, ultimosNumero
         return content.padEnd(length, ' '); // Mantener el formato original sin ceros
     };
 
+   let fila3= "06"+factura+"000101"+numerosGenerados+"1131810405133320000002";
+      fila3=procesarFila3(fila3,ultimosNumeros); 
     // Definir las líneas con sus valores y sus longitudes respectivas
     const lines = [
         formatLine(`018903990295${formattedDate}05100000379400000574${formattedDate}2137Z01`, 162),
         formatLine(`0577099984169490001`, 162),
-        formatLine(`0600000000000000000000000000000000000000000000007782${factura}000101${numerosGenerados}1131810405133320000002`, 162),
+        formatLine(`${fila3}`, 162),
         formatLine(`0600000000000000000000000000000000000000000000651800000000000000010183945282545705133320000003`, 162),
         formatLine('080000000040000000000158800000001', 162),
         formatLine('09000000004000000000012544000', 162),
     ];
 
-
-    console.log(datosExtraidos.length);
-
     
+    console.log("FACTURA: ", factura)
 
+    // Unir todas las líneas con un salto de línea y escribirlas en un archivo
+    const fileContent = lines.join('\n');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Cadena original
-const Fila3 = '0600000000000000000000000000000000000000000000778200000099683100010183941131810405133320000002';
-const conteoFila = Fila3.length; // Longitud total de Fila3
-
-// Partición de la cadena original
-const parteAntes = Fila3.substring(0, 45); // Parte antes del índice 45
-const parteDespues = Fila3.substring(50);   // Parte después del índice 50
-
-// Nueva parte que se va a cambiar
-let nuevaParteCambiar = datosExtraidos; // Valor a insertar entre los índices 45 y 50
-
-// Calcular la longitud de la nueva parte necesaria
-const longitudTotal = 94; // Longitud total deseada de la cadena
-const longitudNuevaParte = longitudTotal - (parteAntes.length + parteDespues.length); // Longitud que debe tener la nueva parte
-
-// Rellenar con ceros o truncar nuevaParteCambiar según la longitud calculada
-if (nuevaParteCambiar.length < longitudNuevaParte) {
-    nuevaParteCambiar = nuevaParteCambiar.padStart(longitudNuevaParte, '0'); // Rellenar con ceros a la izquierda
-} else if (nuevaParteCambiar.length > longitudNuevaParte) {
-    nuevaParteCambiar = nuevaParteCambiar.substring(0, longitudNuevaParte); // Truncar si es necesario
-}
-
-// Unir todas las partes para formar la nueva cadena
-const nuevaFila3 = parteAntes + nuevaParteCambiar + parteDespues;
-
-// Imprimir el resultado final
-//console.log(nuevaFila3);
-
-
-
-      console.log(conteoFila) ;
-    console.log(nuevaFila3);
-   const fileContent = lines.join('\n');
     fs.writeFileSync('resultaos.txt', fileContent);
+
+    console.log("ultimos Numeros antes de 3900:", ultimosNumeros)
+    console.log("formattedDate: ", formattedDate, "numerosGenerados: ", numerosGenerados)
+    console.log("CONTENIDO DEL TXT: ", fileContent)
+
     console.log('Archivo TXT generado con el formato especificado.');
+
+
 };
 
 
