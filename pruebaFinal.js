@@ -22,7 +22,7 @@ const extractPdfData = async (filePath) => {
     
     // Ejemplo de uso
     const numerosGenerados = generarNumerosAleatorios();
-    console.log(numerosGenerados);
+    console.log("numerosGenerados: ", numerosGenerados);
 
     // Obtener la fecha actual en el formato deseado
     const formattedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -51,22 +51,33 @@ const extractPdfData = async (filePath) => {
             console.log('No se encontró el patrón entre (3900) y (96).');
         }
 
+        console.log("REGEX INTERMEDIO 8020-3900: ", matchIntermedio[1])
+        let ultimosNumeros = '';
         if (matchIntermedio) {
-            const intermedio = matchIntermedio[1].trim(); // Contenido entre (8020) y (3900)
-            console.log('Contenido entre (8020) y (3900):', intermedio);
-        } else {
-            console.log('No se encontró el patrón entre (8020) y (3900).');
+            const intermedio = matchIntermedio[1].trim();
+            
+            // Expresión regular modificada para capturar los últimos dígitos relevantes
+            const regexUltimosNumeros = /0{2,}([1-9][0-9]*)$/; // Captura los números antes de (3900)
+            const matchUltimosNumeros = intermedio.match(regexUltimosNumeros);
+
+            if (matchUltimosNumeros) {
+                // Extraer el último número ignorando los ceros a la izquierda
+                ultimosNumeros = matchUltimosNumeros[1]
+                console.log('Últimos dígitos antes de (3900) sin ceros a la izquierda:', ultimosNumeros);
+            }
         }
 
+        
         // Llamamos a la función para generar el archivo TXT con los datos extraídos
-        generateTxtFile(matchFactura ? matchFactura[1] : '', formattedDate, numerosGenerados);
+        generateTxtFile(matchFactura ? matchFactura[1] : '', formattedDate, numerosGenerados, ultimosNumeros);
+
     } catch (error) {
         console.error('Error al procesar el PDF:', error);
     }
 };
 
 // Función para generar el archivo de texto formateado
-const generateTxtFile = (factura, formattedDate, numerosGenerados)  => {
+const generateTxtFile = (factura, formattedDate, numerosGenerados, ultimosNumeros)  => {
     // Función para formatear una línea con longitud fija
     const formatLine = (content, length) => {
         return content.padEnd(length, ' '); // Mantener el formato original sin ceros
@@ -82,13 +93,62 @@ const generateTxtFile = (factura, formattedDate, numerosGenerados)  => {
         formatLine('09000000004000000000012544000', 162),
     ];
 
-    // Unir todas las líneas con un salto de línea y escribirlas en un archivo
-    const fileContent = lines.join('\n');
 
+    console.log(datosExtraidos.length);
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Cadena original
+const Fila3 = '0600000000000000000000000000000000000000000000778200000099683100010183941131810405133320000002';
+const conteoFila = Fila3.length; // Longitud total de Fila3
+
+// Partición de la cadena original
+const parteAntes = Fila3.substring(0, 45); // Parte antes del índice 45
+const parteDespues = Fila3.substring(50);   // Parte después del índice 50
+
+// Nueva parte que se va a cambiar
+let nuevaParteCambiar = datosExtraidos; // Valor a insertar entre los índices 45 y 50
+
+// Calcular la longitud de la nueva parte necesaria
+const longitudTotal = 94; // Longitud total deseada de la cadena
+const longitudNuevaParte = longitudTotal - (parteAntes.length + parteDespues.length); // Longitud que debe tener la nueva parte
+
+// Rellenar con ceros o truncar nuevaParteCambiar según la longitud calculada
+if (nuevaParteCambiar.length < longitudNuevaParte) {
+    nuevaParteCambiar = nuevaParteCambiar.padStart(longitudNuevaParte, '0'); // Rellenar con ceros a la izquierda
+} else if (nuevaParteCambiar.length > longitudNuevaParte) {
+    nuevaParteCambiar = nuevaParteCambiar.substring(0, longitudNuevaParte); // Truncar si es necesario
+}
+
+// Unir todas las partes para formar la nueva cadena
+const nuevaFila3 = parteAntes + nuevaParteCambiar + parteDespues;
+
+// Imprimir el resultado final
+//console.log(nuevaFila3);
+
+
+
+      console.log(conteoFila) ;
+    console.log(nuevaFila3);
+   const fileContent = lines.join('\n');
     fs.writeFileSync('resultaos.txt', fileContent);
-
     console.log('Archivo TXT generado con el formato especificado.');
 };
 
+
 // Ejecutar la extracción de datos del PDF y luego generar el archivo TXT
-extractPdfData('./data/prueba.pdf');
+extractPdfData('./data/prueba3.pdf');
